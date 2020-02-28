@@ -1,8 +1,13 @@
+"""
+Numerical solving of advection diffusion equation with Lax-Friedrichs method, 
+respecting the Courant condition, using two different duffision coefficients. 
+
+@author: Yilin Wang 
+28 Feb. 2020 
+"""
+
 import numpy as np 
-# from Advection import take_funcp, take_funcpp, func_evolve_FTCS, func_evolve_LF
 import matplotlib.pyplot as plt 
-
-
 
 
 u = -0.1
@@ -36,20 +41,35 @@ funcpp_0_LFd_2 = funcpp_0.copy()
 
 
 def A_func(n, D):
+	"""
+	Define function to calculate matrix A for updating grid with diffusion term (implicid method)
+	Argument(s):
+	n - integer 
+	D: float
+	"""
 	beta = D * timestep / (grid_spacing**2)
 	A = np.eye(n) * (1.0+2.0*beta) + np.eye(n, k=1) * -beta + np.eye(n, k=-1)*-beta
-	# A[0][0] = 1
-	# A[0][1] = 0 
-	# A[-1][-1] = 1
-	# A[-1][-2] = 0 
 	return A
 
 def func_evolve_LFd(func, funcp, funcpp, D): 
+	"""
+	Define fucntion to evolve a function to timestep n+1 using the previous timestep n,
+	using the Lax-Friedrichs method with diffusion term
+	Arguments: 
+	func - array 
+	funcp - array
+	funcpp - array 
+	D - float 
+	"""
 	func[1:-1] += -u*timestep*funcp+ D*timestep*funcpp
 	funcp = (func[2:] - func[:-2]) / (2*grid_spacing)  
 	funcpp= (func[2:] - 2 * func[1:-1] + func[:-2]) / (grid_spacing**2)
 	return func, funcp, funcpp 
 
+
+"""plotting the numerical solution's evolvement with each time step, 
+using LF methods with diffusiion term, for two different diffusion coefficients  
+"""
 plt.ion()
 fig, axes = plt.subplots(1,2)
 axes[0].set_title(f"D={D[0]}")
@@ -66,6 +86,8 @@ axes[1].legend()
 fig.canvas.draw()
 
 count = 0 
+
+# LF evolvement of function for two diffusive coefficients 
 
 while count < len(total_time): 
 	for i in range(300):
@@ -90,10 +112,4 @@ while count < len(total_time):
 		fig.canvas.draw()
 		plt.pause(0.001)
 		count = count + 1
-
-
-
-
-
-
 

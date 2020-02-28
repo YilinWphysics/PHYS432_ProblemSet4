@@ -1,16 +1,17 @@
 """
 Numerical solving of advection equation with FTCS method (shown to be unstable)
-and the Lax-Friedrichs method (shown to be stable, if the Courant condition is respected)
+and the Lax-Friedrichs method (shown to be stable, if the Courant condition 
+is respected)
+
 @author: Yilin Wang 
-
-
+28 Feb. 2020 
 """
 
 import numpy as np 
 from matplotlib import pyplot as plt 
 
 u = -0.1
-# defining grid size 
+# defining grid size (!D)
 grid_spacing = 0.05
 N = 400
 gridline = np.arange(0, 400, grid_spacing)
@@ -36,21 +37,52 @@ func_0_LF = func_0.copy()
 funcp_0_LF = funcp_0.copy()
 funcpp_0_LF = funcpp_0.copy()
 
-
 def take_funcp(func):
+	"""
+	Define function to take first order derivative 
+	Argument(s):
+	func - array 
+	"""
 	return (func[2:] - func[:-2]) / (2*grid_spacing) 
 
 def take_funcpp(func):
+	"""
+	Define function to take second order derivative 
+	Argument(s):
+	func - array 
+	"""
 	return (func[2:] - 2 * func[1:-1] + func[:-2]) / (grid_spacing**2)
 
 def func_evolve_FTCS(func, timestep, funcp): 
+	"""
+	Define function to evolve a function to timestep n+1 using the previous timestep n,
+	using the FTCS method 
+	Argument(s):
+	func - array 
+	timestep - float
+	funcp - array
+	"""
 	func[1:-1] -= u * timestep *funcp
 	funcp = take_funcp(func)
 	return func, funcp
 
 def func_evolve_LF(func, timestep, funcp, funcpp): 
+	"""
+	Define function to evolve a function to timestep n+1 using the previous timestep n, 
+	using the Lax-Friedrichs method 
+	Argument(s):
+	func - array 
+	timestep - float
+	funcp - array
+	funcpp - array
+	"""
 	func[1:-1] = 0.5*(func[2:]+func[:-2]) - u * 0.5*timestep/grid_spacing * (func[2:]-func[:-2])
 	return func, funcp, funcpp 
+
+
+"""plotting the numerical solution's evolvement with each time step, 
+using FTCS and LF methods 
+"""
 
 plt.ion()
 fig, axes = plt.subplots(1,2)
@@ -67,7 +99,7 @@ axes[1].legend()
 
 fig.canvas.draw()
 
-# FTCS evolvement of function: 
+# FTCS and LF evolvement of function: 
 count = 0 
 while count < len(total_time): 
 	for i in range(1000):
